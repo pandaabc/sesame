@@ -1,6 +1,7 @@
 package com.pandaabc.sesame.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
