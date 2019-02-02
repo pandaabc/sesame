@@ -32,7 +32,7 @@ public class Appointment implements Serializable{
 	private Timestamp appointmentDateTime;
 	
 	@Column(name = "appointment_duration")
-	private Timestamp appointmentDuration;
+	private Long appointmentDuration;
 	
 	@Column(name = "name_of_doctor")
 	private String nameOfDoctor;
@@ -41,7 +41,7 @@ public class Appointment implements Serializable{
 	private ApptStatus apptStatus;
 	
 	@Column(name = "price")
-	private double price;
+	private Double price;
 	
 
 }

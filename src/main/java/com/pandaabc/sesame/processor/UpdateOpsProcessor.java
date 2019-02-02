@@ -10,19 +10,19 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
-public class UpdateProcessor {
+public class UpdateOpsProcessor extends BaseProcessor implements IProcessor {
 
     @Autowired
     ApptService service;
 
-    public List<WebAppointment> preProcess(List<Appointment> appointments) {
+    @Override
+    public List<WebAppointment> preprocess(List<Appointment> appointments) {
         // remove appointments without id
         List<WebAppointment> webAppointments =  appointments.stream()
-                                                        .map(UpdateProcessor::mapAppointment)
+                                                        .map(appointment -> mapAppointment(appointment))
                                                         .collect(Collectors.toList());
         // make it to map
         Map<Long, WebAppointment> webAppointmentsById = webAppointments.stream()
@@ -31,35 +31,38 @@ public class UpdateProcessor {
         // get appointments from db, from the ids from the request
         Map<Long, Appointment> existingAppointmentById = service.getAppointmentsWithIds(new ArrayList<>(webAppointmentsById.keySet()))
                                                             .stream()
-                                                            .collect(Collectors.toMap(appointment -> appointment.getId(), appointment -> appointment));
+                                                            .collect(Collectors.toMap(Appointment::getId, appointment -> appointment));
         // compare the requested and existing, and reset status
         webAppointmentsById.entrySet().forEach(entry -> precheckAgainstDbData(entry.getValue(), existingAppointmentById.get(entry.getKey())));
 
         return webAppointments;
     }
 
-    public List<WebAppointment> postProcess(List<WebAppointment> appointments) {
+    @Override
+    public List<WebAppointment> postprocess(List<WebAppointment> appointments) {
         // convert webappointments to map
         Map<Long, WebAppointment> webAppointmentsById = appointments.stream()
                                                             .filter(appointment -> ApptDbOpStatus.TBD.equals(appointment.getMessage()))
                                                             .collect(Collectors.toMap(appointment -> appointment.getAppointment().getId(), appointment -> appointment));
-
+        // get appointments from the database
         Map<Long, Appointment> updatedAppointmentById = service.getAppointmentsWithIds(new ArrayList<>(webAppointmentsById.keySet()))
                                                                 .stream()
-                                                                .collect(Collectors.toMap(appointment -> appointment.getId(), appointment -> appointment));
-
+                                                                .collect(Collectors.toMap(Appointment::getId, appointment -> appointment));
+        // compare and reset status
         webAppointmentsById.entrySet().forEach(entry -> postcheckAgainstDbData(entry.getValue(), updatedAppointmentById.get(entry.getKey())));
 
         return appointments;
     }
 
-    private static WebAppointment mapAppointment(Appointment appointment) {
+    private WebAppointment mapAppointment(Appointment appointment) {
         if (appointment == null) {
             return new WebAppointment(null, ApptDbOpStatus.NULL);
-        }
-        if (appointment.getId() == null) {
+        } else if (appointment.getId() == null) {
             return new WebAppointment(appointment, ApptDbOpStatus.NOID);
+        } else if (!validataAppointment(appointment)) {
+        	return new WebAppointment(appointment, ApptDbOpStatus.INVALIDDATA);
         }
+        
         return new WebAppointment(appointment, ApptDbOpStatus.TBD);
     }
 

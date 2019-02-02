@@ -1,20 +1,25 @@
 package com.pandaabc.sesame.web.controller;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
+import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
 import com.pandaabc.sesame.dto.WebRequest;
 import com.pandaabc.sesame.jpa.ApptService;
 
 import com.pandaabc.sesame.mapper.ApptWebDtoMapper;
-import com.pandaabc.sesame.processor.UpdateProcessor;
+import com.pandaabc.sesame.processor.CreateOpsProcessor;
+import com.pandaabc.sesame.processor.UpdateOpsProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pandaabc.sesame.dto.WebResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,32 +34,85 @@ public class Controller {
 	ApptWebDtoMapper mapper;
 
 	@Autowired
-	UpdateProcessor updateProcessor;
+	UpdateOpsProcessor updateProcessor;
+	
+	@Autowired
+	CreateOpsProcessor createProcessor;
 
 	private static final String SUCCESS = "SUCCESS";
 	private static final String ERROR = "ERROR DELETING";
 	
-	@PostMapping("/find/with-ids/")
-	public WebResponse getAppointmentByIds(WebRequest request) {
-		// check request
-		if (CollectionUtils.isEmpty(request.getIds())) {
-			return getDefaultInvalidInputWebResponse();
-		}
-
+	@GetMapping("/find/with-id/{id}")
+	public WebResponse getAppointmentById(@PathVariable long id) {
 		WebResponse response = new WebResponse();
-		// get appointments for all ids
-		List<WebAppointment> appointments = service.getAppointmentsWithIds(request.getIds())
-													.stream()
-													.map(appointment -> mapper.map(appointment))
-													.collect(Collectors.toList());
-		// set basic response info and return
-		response.setAppointments(appointments);
+		
+		try {
+			
+			WebAppointment appointment = mapper.map(service.getAppointmentWithId(id));
+			
+			response.setAppointments(new ArrayList<>());
+			response.getAppointments().add(appointment);
+			
+		} catch (Exception e) {
+			// log exception to file / splunk / message queue
+		}
+		
 		response.setResultMessage(SUCCESS);
 		response.setResultCode(200);
 		response.setServerID("TEST-SERVER");
 
 		return response;
+		
 	}
+	
+	@GetMapping("/delete/with-id/{id}")
+	public WebResponse deleteAppointmentById(@PathVariable long id) {
+		WebResponse response = new WebResponse();
+		
+		boolean isDeleted = false;
+		
+		try {
+			
+			isDeleted = service.deleteAppointmentWithId(id);
+			
+		} catch (Exception e) {
+			// log exception to file / splunk / message queue
+		}
+		
+		response.setResultMessage(isDeleted ? SUCCESS : ERROR);
+		response.setResultCode(200);
+		response.setServerID("TEST-SERVER");
+		
+		return response;
+		
+	}
+	
+//	
+//	@PostMapping("/find/with-ids/")
+//	public WebResponse getAppointmentByIds(WebRequest request) {
+//		// check request
+//		if (CollectionUtils.isEmpty(request.getIds())) {
+//			return getDefaultInvalidInputWebResponse();
+//		}
+//
+//		WebResponse response = new WebResponse();
+//		try {
+//			// get appointments for all ids
+//			List<WebAppointment> appointments = service.getAppointmentsWithIds(request.getIds())
+//														.stream()
+//														.map(appointment -> mapper.map(appointment))
+//														.collect(Collectors.toList());
+//			// set basic response info and return
+//			response.setAppointments(appointments);
+//		} catch (Exception e) {
+//			// log exception to file / splunk / message queue
+//		}
+//		response.setResultMessage(SUCCESS);
+//		response.setResultCode(200);
+//		response.setServerID("TEST-SERVER");
+//
+//		return response;
+//	}
 
 	@PostMapping("/delete/with-ids/")
 	public WebResponse deleteAppointmentByIds(WebRequest request) {
@@ -64,8 +122,13 @@ public class Controller {
 		}
 
 		WebResponse response = new WebResponse();
-		// get appointments for all ids
-		boolean isDeleted = service.deleteAppointmentsWithIds(request.getIds());
+		boolean isDeleted = false;
+		try {
+			// get appointments for all ids
+			isDeleted = service.deleteAppointmentsWithIds(request.getIds());
+		} catch (Exception e) {
+			// log exception to file / splunk / message queue
+		}
 		// set basic response info and return
 		response.setResultMessage(isDeleted ? SUCCESS : ERROR);
 		response.setResultCode(200);
@@ -76,24 +139,26 @@ public class Controller {
 
 
 	@PostMapping("/update/")
-	public WebResponse updateAppointmentWithId(WebRequest request) {
+	public WebResponse updateAppointment(WebRequest request) {
 		// check request
 		if (CollectionUtils.isEmpty(request.getAppointments())) {
 			return getDefaultInvalidInputWebResponse();
 		}
 
 		WebResponse response = new WebResponse();
-		// preProcess the request
-		List<WebAppointment> webAppointments = updateProcessor.preProcess(request.getAppointments());
-		// update appointments
-		service.updateAppointments(webAppointments.stream()
-													.filter(webAppointment -> ApptDbOpStatus.TBD.equals(webAppointment.getMessage()))
-													.map(webAppointment -> webAppointment.getAppointment())
-													.collect(Collectors.toList()));
-		// postProcess information
-		webAppointments = updateProcessor.postProcess(webAppointments);
+		try {
+			// preProcess the request
+			List<WebAppointment> webAppointments = updateProcessor.preprocess(request.getAppointments());
+			// update appointments
+			service.updateAppointments(getFinalAppointmentList(webAppointments));
+			// postProcess information
+			webAppointments = updateProcessor.postprocess(webAppointments);
+			
+			response.setAppointments(webAppointments);
+		} catch (Exception e) {
+			// log exception to file / splunk / message queue
+		}
 
-		response.setAppointments(webAppointments);
 		response.setResultCode(200);
 		response.setServerID("TEST-SERVER");
 
@@ -103,17 +168,44 @@ public class Controller {
 	@PostMapping("/create/")
 	public WebResponse createAppointments(WebRequest request) {
 
+		// check request
+		if (CollectionUtils.isEmpty(request.getAppointments())) {
+			return getDefaultInvalidInputWebResponse();
+		}
 		
+		WebResponse response = new WebResponse();
+		
+		try {
+			// preprocess the request
+			List<WebAppointment> webAppointments = createProcessor.preprocess(request.getAppointments());
+			// insert to table
+			service.createAppointments(getFinalAppointmentList(webAppointments));
+			// post process
+			webAppointments = createProcessor.postprocess(webAppointments);
+			
+			response.setAppointments(webAppointments);
+		} catch (Exception e) {
+			// log exception to file / splunk / message queue
+		}
+		
+		response.setResultCode(200);
+		response.setServerID("TEST-SERVER");
+		return response;
 
 	}
 
 	private WebResponse getDefaultInvalidInputWebResponse() {
 		WebResponse response = new WebResponse();
 		response.setResultCode(200);
-		response.setResultMessage("ID NOT VALID.  Please provide id list.");
+		response.setResultMessage("INPUT NOT VALID");
 		return response;
 	}
 	
-	
+	private List<Appointment> getFinalAppointmentList(List<WebAppointment> webAppointments) {
+		return webAppointments.stream()
+								.filter(webAppointment -> ApptDbOpStatus.TBD.equals(webAppointment.getMessage()))
+								.map(webAppointment -> webAppointment.getAppointment())
+								.collect(Collectors.toList());
+	}
 
 }
