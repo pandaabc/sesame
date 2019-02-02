@@ -7,26 +7,25 @@ import javax.persistence.*;
 
 import com.pandaabc.sesame.constant.ApptStatus;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@EqualsAndHashCode
 @Table(name = "appointment")
 public class Appointment implements Serializable{
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 3545928623380850048L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private long id;
+	private Long id;
 	
 	@Column(name = "creation_time")
+	@EqualsAndHashCode.Exclude
 	private Timestamp creationTime;
 	
 	@Column(name = "appointment_datetime")

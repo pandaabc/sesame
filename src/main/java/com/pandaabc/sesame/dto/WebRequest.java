@@ -12,6 +12,7 @@ public class WebRequest implements Serializable {
 
 	private static final long serialVersionUID = 3159882481804725690L;
 	
-	private List<Appointment> appt;
+	private List<Appointment> appointments;
+	private List<Long> ids;
 	
 }
