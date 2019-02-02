@@ -4,6 +4,11 @@ import com.pandaabc.sesame.constant.ApptDbOpStatus;
 import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ApptWebDtoMapper {
@@ -15,6 +20,16 @@ public class ApptWebDtoMapper {
         } else {
             return new WebAppointment(appointment, ApptDbOpStatus.SUCCESS);
         }
+
+    }
+
+    public List<WebAppointment> map (List<Appointment> appointments) {
+
+        if (CollectionUtils.isEmpty(appointments)) {
+            return new ArrayList<>();
+        }
+
+        return appointments.stream().map(appointment -> map(appointment)).collect(Collectors.toList());
 
     }
 

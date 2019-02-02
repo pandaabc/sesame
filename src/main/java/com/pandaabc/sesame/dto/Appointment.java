@@ -2,6 +2,7 @@ package com.pandaabc.sesame.dto;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
@@ -25,11 +26,13 @@ public class Appointment implements Serializable{
 	private Long id;
 	
 	@Column(name = "creation_time")
+	@Temporal(TemporalType.TIMESTAMP)
 	@EqualsAndHashCode.Exclude
-	private Timestamp creationTime;
+	private LocalDateTime creationTime;
 	
 	@Column(name = "appointment_datetime")
-	private Timestamp appointmentDateTime;
+	@Temporal(TemporalType.TIMESTAMP)
+	private LocalDateTime appointmentDateTime;
 	
 	@Column(name = "appointment_duration")
 	private Long appointmentDuration;

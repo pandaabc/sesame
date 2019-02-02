@@ -14,5 +14,5 @@ public class WebRequest implements Serializable {
 	
 	private List<Appointment> appointments;
 	private List<Long> ids;
-	
+
 }

@@ -9,17 +9,14 @@ import com.pandaabc.sesame.jpa.ApptService;
 import com.pandaabc.sesame.mapper.ApptWebDtoMapper;
 import com.pandaabc.sesame.processor.CreateOpsProcessor;
 import com.pandaabc.sesame.processor.UpdateOpsProcessor;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pandaabc.sesame.dto.WebResponse;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,16 +39,22 @@ public class Controller {
 	private static final String SUCCESS = "SUCCESS";
 	private static final String ERROR = "ERROR DELETING";
 	
-	@GetMapping("/find/with-id/{id}")
-	public WebResponse getAppointmentById(@PathVariable long id) {
+	@GetMapping("/find")
+	public WebResponse getAppointments(@RequestParam(required = false) Long id,
+										  @RequestParam(required = false) LocalDateTime startTime,
+										  @RequestParam(required = false) LocalDateTime endTime) {
+
+		if (!isRequestValid(id, startTime, endTime)) {
+			return getDefaultInvalidInputWebResponse();
+		}
+
 		WebResponse response = new WebResponse();
 		
 		try {
 			
-			WebAppointment appointment = mapper.map(service.getAppointmentWithId(id));
+			List<WebAppointment> appointments = mapper.map(service.getAppointment(id, startTime, endTime));
 			
-			response.setAppointments(new ArrayList<>());
-			response.getAppointments().add(appointment);
+			response.setAppointments(appointments);
 			
 		} catch (Exception e) {
 			// log exception to file / splunk / message queue
@@ -86,8 +89,8 @@ public class Controller {
 		return response;
 		
 	}
-	
-//	
+
+//
 //	@PostMapping("/find/with-ids/")
 //	public WebResponse getAppointmentByIds(WebRequest request) {
 //		// check request
@@ -206,6 +209,21 @@ public class Controller {
 								.filter(webAppointment -> ApptDbOpStatus.TBD.equals(webAppointment.getMessage()))
 								.map(webAppointment -> webAppointment.getAppointment())
 								.collect(Collectors.toList());
+	}
+
+	private boolean isRequestValid(Long id, LocalDateTime start, LocalDateTime end) {
+
+		if (id != null) {
+			if (start != null && end != null && start.isAfter(end)) {
+				return false;
+			}
+			return true;
+		}
+		if (start != null && end != null && start.isBefore(end)) {
+			return true;
+		}
+		return false;
+
 	}
 
 }
