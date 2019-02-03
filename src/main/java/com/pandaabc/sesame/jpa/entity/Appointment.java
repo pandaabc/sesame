@@ -1,8 +1,7 @@
-package com.pandaabc.sesame.dto;
+package com.pandaabc.sesame.jpa.entity;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.persistence.*;
 
@@ -23,16 +22,17 @@ public class Appointment implements Serializable{
 
 	@Id
 	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(name = "creation_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	@EqualsAndHashCode.Exclude
-	private LocalDateTime creationTime;
+	private Date creationTime;
 	
 	@Column(name = "appointment_datetime")
 	@Temporal(TemporalType.TIMESTAMP)
-	private LocalDateTime appointmentDateTime;
+	private Date appointmentDateTime;
 	
 	@Column(name = "appointment_duration")
 	private Long appointmentDuration;

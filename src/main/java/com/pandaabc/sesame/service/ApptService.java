@@ -1,12 +1,11 @@
-package com.pandaabc.sesame.jpa;
+package com.pandaabc.sesame.service;
 
-import com.pandaabc.sesame.dto.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import com.pandaabc.sesame.jpa.AppointmentRepoImpl;
+import com.pandaabc.sesame.jpa.entity.Appointment;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,18 +13,23 @@ import java.util.Optional;
 @Component
 public class ApptService {
 
-    @Autowired AppointmentJPARepo repo;
+    @Autowired AppointmentRepoImpl repo;
 
     public List<Appointment> getAppointmentsWithIds(List<Long> ids) {
         return repo.findAllById(ids);
     }
 
-    public List<Appointment> getAppointment(Long id, LocalDateTime start, LocalDateTime end) {
-        if (id != null) {
-            return getAppointmentWithId(id);
-        } else {
-            return repo.findAppointsWithTime(start, end);
-        }
+    public List<Appointment> getAppointment(Long id, String start, String end) {
+    	try {
+	        if (id != null) {
+	            return getAppointmentWithId(id);
+	        } else {
+	            return repo.findAppointsWithTime(start, end);
+	        }
+    	} catch (Exception e) {
+    		
+    	}
+    	return new ArrayList<>();
     }
     
     public List<Appointment> getAppointmentWithId(long id) {

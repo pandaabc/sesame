@@ -1,6 +1,8 @@
 package com.pandaabc.sesame.dto;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
+import com.pandaabc.sesame.jpa.entity.Appointment;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

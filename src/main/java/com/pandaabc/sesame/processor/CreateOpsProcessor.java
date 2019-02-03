@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
-import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
+import com.pandaabc.sesame.jpa.entity.Appointment;
 
 @Component
 public class CreateOpsProcessor extends BaseProcessor implements IProcessor{

@@ -1,8 +1,9 @@
 package com.pandaabc.sesame.mapper;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
-import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
+import com.pandaabc.sesame.jpa.entity.Appointment;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 

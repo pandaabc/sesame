@@ -2,7 +2,7 @@ package com.pandaabc.sesame.processor;
 
 import org.springframework.util.StringUtils;
 
-import com.pandaabc.sesame.dto.Appointment;
+import com.pandaabc.sesame.jpa.entity.Appointment;
 
 public class BaseProcessor {
 	

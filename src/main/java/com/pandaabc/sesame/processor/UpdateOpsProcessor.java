@@ -1,9 +1,10 @@
 package com.pandaabc.sesame.processor;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
-import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
-import com.pandaabc.sesame.jpa.ApptService;
+import com.pandaabc.sesame.jpa.entity.Appointment;
+import com.pandaabc.sesame.service.ApptService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -1,15 +1,14 @@
 package com.pandaabc.sesame.web.controller;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
-import com.pandaabc.sesame.dto.Appointment;
 import com.pandaabc.sesame.dto.WebAppointment;
 import com.pandaabc.sesame.dto.WebRequest;
-import com.pandaabc.sesame.jpa.ApptService;
-
+import com.pandaabc.sesame.jpa.entity.Appointment;
 import com.pandaabc.sesame.mapper.ApptWebDtoMapper;
 import com.pandaabc.sesame.processor.CreateOpsProcessor;
 import com.pandaabc.sesame.processor.UpdateOpsProcessor;
-import org.apache.tomcat.jni.Local;
+import com.pandaabc.sesame.service.ApptService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.pandaabc.sesame.dto.WebResponse;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,8 +41,8 @@ public class Controller {
 	
 	@GetMapping("/find")
 	public WebResponse getAppointments(@RequestParam(required = false) Long id,
-										  @RequestParam(required = false) LocalDateTime startTime,
-										  @RequestParam(required = false) LocalDateTime endTime) {
+										  @RequestParam(required = false) String startTime,
+										  @RequestParam(required = false) String endTime) {
 
 		if (!isRequestValid(id, startTime, endTime)) {
 			return getDefaultInvalidInputWebResponse();
@@ -89,33 +89,6 @@ public class Controller {
 		return response;
 		
 	}
-
-//
-//	@PostMapping("/find/with-ids/")
-//	public WebResponse getAppointmentByIds(WebRequest request) {
-//		// check request
-//		if (CollectionUtils.isEmpty(request.getIds())) {
-//			return getDefaultInvalidInputWebResponse();
-//		}
-//
-//		WebResponse response = new WebResponse();
-//		try {
-//			// get appointments for all ids
-//			List<WebAppointment> appointments = service.getAppointmentsWithIds(request.getIds())
-//														.stream()
-//														.map(appointment -> mapper.map(appointment))
-//														.collect(Collectors.toList());
-//			// set basic response info and return
-//			response.setAppointments(appointments);
-//		} catch (Exception e) {
-//			// log exception to file / splunk / message queue
-//		}
-//		response.setResultMessage(SUCCESS);
-//		response.setResultCode(200);
-//		response.setServerID("TEST-SERVER");
-//
-//		return response;
-//	}
 
 	@PostMapping("/delete/with-ids/")
 	public WebResponse deleteAppointmentByIds(WebRequest request) {
@@ -211,14 +184,26 @@ public class Controller {
 								.collect(Collectors.toList());
 	}
 
-	private boolean isRequestValid(Long id, LocalDateTime start, LocalDateTime end) {
-
+	private boolean isRequestValid(Long id, String startStr, String endStr) {
+		
+		LocalDateTime start = null;
+		LocalDateTime end = null;
+		
+		try {
+			start = startStr == null ? null : LocalDateTime.parse(startStr, DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+			end = endStr == null ? null : LocalDateTime.parse(endStr, DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+		} catch (Exception e) {
+			return false;
+		}
+			
 		if (id != null) {
 			if (start != null && end != null && start.isAfter(end)) {
 				return false;
 			}
 			return true;
 		}
+		
+		
 		if (start != null && end != null && start.isBefore(end)) {
 			return true;
 		}

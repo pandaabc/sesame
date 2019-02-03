@@ -3,6 +3,8 @@ package com.pandaabc.sesame.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import com.pandaabc.sesame.jpa.entity.Appointment;
+
 import lombok.Getter;
 import lombok.Setter;
 
