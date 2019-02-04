@@ -5,8 +5,6 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-import com.pandaabc.sesame.constant.ApptStatus;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +39,7 @@ public class Appointment implements Serializable{
 	private String nameOfDoctor;
 	
 	@Column(name = "appt_status")
-	private ApptStatus apptStatus;
+	private String apptStatus;
 	
 	@Column(name = "price")
 	private Double price;

@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.pandaabc.sesame.constant.ApptStatus;
 import com.pandaabc.sesame.jpa.entity.Appointment;
 import com.pandaabc.sesame.service.ApptService;
 
@@ -70,7 +69,7 @@ public class RandomTaskRunner {
 		appointment.setCreationTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDateTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDuration(30l);
-		appointment.setApptStatus(ApptStatus.AVAILABLE);
+		appointment.setApptStatus("Available");
 		appointment.setNameOfDoctor("Good Dr");
 		appointment.setPrice(50.1);
 		List<Appointment> list = new ArrayList<>();

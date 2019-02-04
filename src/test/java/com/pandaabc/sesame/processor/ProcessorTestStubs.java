@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.pandaabc.sesame.constant.ApptDbOpStatus;
-import com.pandaabc.sesame.constant.ApptStatus;
 import com.pandaabc.sesame.dto.WebAppointment;
 import com.pandaabc.sesame.jpa.entity.Appointment;
 
@@ -18,7 +17,7 @@ public class ProcessorTestStubs {
 		appointment.setCreationTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDateTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDuration(30l);
-		appointment.setApptStatus(ApptStatus.AVAILABLE);
+		appointment.setApptStatus("Available");
 		appointment.setNameOfDoctor("Good Dr");
 		appointment.setPrice(50.1);
 		appointment.setId(1001l);
@@ -31,7 +30,7 @@ public class ProcessorTestStubs {
 		appointment.setCreationTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDateTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
 		appointment.setAppointmentDuration(30l);
-		appointment.setApptStatus(ApptStatus.AVAILABLE);
+		appointment.setApptStatus("Available");
 		appointment.setNameOfDoctor("Good Dr");
 		appointment.setPrice(50.1);
 		
