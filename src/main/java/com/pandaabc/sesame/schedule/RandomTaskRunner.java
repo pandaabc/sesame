@@ -23,17 +23,26 @@ public class RandomTaskRunner {
 	
 	private static ApptService staticService;
 	
+	private static final int BASETIME_IN_SECOND = 10;
+	private static final int RANDOM_TIME_IN_SECOND = 15;
+	
 	@Autowired
 	ApptService service;
 
 	static Timer timer = new Timer();
 	
+	/**
+	 * This task, runs with a minimum time interval plus a randomizer. 
+	 * Each time after the timer finish the current task, it adds a new task, with a random delay.
+	 * @author ywu
+	 *
+	 */
     static class Task extends TimerTask {
         @Override
         public void run() {
         	try {
 	        	excute();
-	            int delay = (10 + new Random().nextInt(15)) * 1000;
+	            int delay = (BASETIME_IN_SECOND + new Random().nextInt(RANDOM_TIME_IN_SECOND)) * 1000;
 	            timer.schedule(new Task(), delay);
         	} catch (Exception e) {
         		// logs ---
@@ -42,13 +51,19 @@ public class RandomTaskRunner {
         
     }
 	
+    /**
+     * This method runs automatically after the bean is created, and runs the timer to schedule the task.
+     */
 	@PostConstruct
 	public void init() {
 		this.staticService = this.service;
-		int delay = 1 * 1000;
+		int delay = 2 * 1000;
 		timer.schedule(new Task(), delay);
 	}
 	
+	/**
+	 * task to execute
+	 */
 	protected static void excute() {
 		
 		Appointment appointment = new Appointment();

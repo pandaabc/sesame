@@ -39,17 +39,25 @@ public class Controller {
 	private static final String SUCCESS = "SUCCESS";
 	private static final String ERROR = "ERROR DELETING";
 	
+	/**
+	 * 
+	 * @param id
+	 * @param startTime
+	 * @param endTime
+	 * @return returns appointments with a certain id, or within a certain time period.
+	 */
 	@GetMapping("/find")
 	public WebResponse getAppointments(@RequestParam(required = false) Long id,
 										  @RequestParam(required = false) String startTime,
 										  @RequestParam(required = false) String endTime) {
-
+		// validate input
 		if (!isRequestValid(id, startTime, endTime)) {
 			return getDefaultInvalidInputWebResponse();
 		}
 
 		WebResponse response = new WebResponse();
 		
+		// try to get the list
 		try {
 			
 			List<WebAppointment> appointments = mapper.map(service.getAppointment(id, startTime, endTime));
@@ -59,7 +67,7 @@ public class Controller {
 		} catch (Exception e) {
 			// log exception to file / splunk / message queue
 		}
-		
+		// add info to response
 		response.setResultMessage(SUCCESS);
 		response.setResultCode(200);
 		response.setServerID("TEST-SERVER");

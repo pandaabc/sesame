@@ -9,12 +9,18 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * webAppointment is used to return to the client
+ * @author ywu
+ *
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 public class WebAppointment implements Serializable {
 
-    Appointment appointment;
+	private static final long serialVersionUID = -5993895315536315489L;
+	Appointment appointment;
     ApptDbOpStatus message;
 
 }

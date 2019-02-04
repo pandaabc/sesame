@@ -55,7 +55,7 @@ public class UpdateOpsProcessor extends BaseProcessor implements IProcessor {
         return appointments;
     }
 
-    private WebAppointment mapAppointment(Appointment appointment) {
+    protected WebAppointment mapAppointment(Appointment appointment) {
         if (appointment == null) {
             return new WebAppointment(null, ApptDbOpStatus.NULL);
         } else if (appointment.getId() == null) {
@@ -67,7 +67,7 @@ public class UpdateOpsProcessor extends BaseProcessor implements IProcessor {
         return new WebAppointment(appointment, ApptDbOpStatus.TBD);
     }
 
-    private void precheckAgainstDbData(WebAppointment requestAppointment, Appointment dbAppointment) {
+    protected void precheckAgainstDbData(WebAppointment requestAppointment, Appointment dbAppointment) {
 
         if (dbAppointment == null) {
             requestAppointment.setMessage(ApptDbOpStatus.NOTEXIST);
@@ -77,7 +77,7 @@ public class UpdateOpsProcessor extends BaseProcessor implements IProcessor {
 
     }
 
-    private void postcheckAgainstDbData(WebAppointment requestAppointment, Appointment dbAppointment) {
+    protected void postcheckAgainstDbData(WebAppointment requestAppointment, Appointment dbAppointment) {
 
         if (requestAppointment.getAppointment().equals(dbAppointment)) {
             requestAppointment.setMessage(ApptDbOpStatus.SUCCESS);
