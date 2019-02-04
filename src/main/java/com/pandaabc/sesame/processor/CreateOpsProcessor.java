@@ -1,5 +1,8 @@
 package com.pandaabc.sesame.processor;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,9 @@ public class CreateOpsProcessor extends BaseProcessor implements IProcessor{
 					.stream()
 					.map(appointment -> {
 							if (validataAppointment(appointment)) {
+								// reset creation date time and remove id
+								appointment.setCreationTime(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+								appointment.setId(null);
 								return new WebAppointment(appointment, ApptDbOpStatus.TBD);
 							} else {
 								return new WebAppointment(appointment, ApptDbOpStatus.INVALIDDATA);

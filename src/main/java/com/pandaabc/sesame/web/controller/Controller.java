@@ -99,7 +99,7 @@ public class Controller {
 	}
 
 	@PostMapping("/delete/with-ids/")
-	public WebResponse deleteAppointmentByIds(WebRequest request) {
+	public WebResponse deleteAppointmentByIds(@RequestBody WebRequest request) {
 		// check request
 		if (CollectionUtils.isEmpty(request.getIds())) {
 			return getDefaultInvalidInputWebResponse();
@@ -123,7 +123,7 @@ public class Controller {
 
 
 	@PostMapping("/update/")
-	public WebResponse updateAppointment(WebRequest request) {
+	public WebResponse updateAppointment(@RequestBody WebRequest request) {
 		// check request
 		if (CollectionUtils.isEmpty(request.getAppointments())) {
 			return getDefaultInvalidInputWebResponse();
@@ -150,7 +150,7 @@ public class Controller {
 	}
 
 	@PostMapping("/create/")
-	public WebResponse createAppointments(WebRequest request) {
+	public WebResponse createAppointments(@RequestBody WebRequest request) {
 
 		// check request
 		if (CollectionUtils.isEmpty(request.getAppointments())) {
