@@ -56,7 +56,7 @@ public class RandomTaskRunner {
 	@PostConstruct
 	public void init() {
 		this.staticService = this.service;
-		int delay = 2 * 1000;
+		int delay = 30 * 1000;
 		timer.schedule(new Task(), delay);
 	}
 	
